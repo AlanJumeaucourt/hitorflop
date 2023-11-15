@@ -15,6 +15,7 @@ RUN npm install
 RUN npm install -g next
 
 RUN npm install performance-now
+RUN npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
 
 # Copiez le reste des fichiers de l'application
 COPY . .
