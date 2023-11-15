@@ -1,43 +1,42 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 
 const SearchSong = ({ onSearch }) => {
-    const [query, setQuery] = useState('');
-    const [result, setResult] = useState([]);
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [showList, setShowList] = useState(false);
-    const [selectedTrackName, setSelectedTrackName] = useState('');
-    const inputRef = useRef(null);
-    
-    useEffect(() => {
-      if (selectedItem !== null) {
-        inputRef.current.blur();
-        onSearch(selectedItem.id); // Perform an action with the selected item (e.g., pass the ID)
-        setSelectedItem(null); // Reset the selected item
-        setShowList(false); // Hide the list
-        setSelectedItem(null); // Reset the selected item
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showList, setShowList] = useState(false);
+  const [selectedTrackName, setSelectedTrackName] = useState("");
+  const inputRef = useRef(null);
 
-      }
-    }, [selectedItem, onSearch]);
-  
+  useEffect(() => {
+    if (selectedItem !== null) {
+      inputRef.current.blur();
+      onSearch(selectedItem.id); // Perform an action with the selected item (e.g., pass the ID)
+      setSelectedItem(null); // Reset the selected item
+      setShowList(false); // Hide the list
+      setSelectedItem(null); // Reset the selected item
+    }
+  }, [selectedItem, onSearch]);
+
   const handleSearch = (searchQuery) => {
     fetch(`https://api.spotify.com/v1/search?q=${searchQuery}&type=track`, {
       headers: {
-        'Authorization': `Bearer BQAjj9xsYg7Pk3KQMHNGGPdUxzA78sI8hTAIDgaUsfulU7C0YdzJPC0i8b2tqbIupK9_k7fVkdH0sEnqjPrnykNm-YJTGMIRnOLenSuv2Xs2oVcp11s`,
+        Authorization: `Bearer BQCtIbu0sqaVklH1whsj44U9RNaUvgnGA5Sf7gFIfVW_vJh7bxW_KT2H_RMpL_PjrTuh9gwxlWrbXi0Cnyz2gk3AbLUeEQ_umy_rrd8eyW_k0rC7FGM`,
       },
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.tracks && data.tracks.items) {
-        setResult(data.tracks.items);
-        setShowList(true); // Show the list when there are search results
-      } else {
-        setResult([]);
-        setShowList(false); // Hide the list when there are no search results
-      }
-    })
-    .catch(error => {
-      console.error('Error during search:', error);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.tracks && data.tracks.items) {
+          setResult(data.tracks.items);
+          setShowList(true); // Show the list when there are search results
+        } else {
+          setResult([]);
+          setShowList(false); // Hide the list when there are no search results
+        }
+      })
+      .catch((error) => {
+        console.error("Error during search:", error);
+      });
   };
 
   const handleInputChange = (e) => {
@@ -51,9 +50,8 @@ const SearchSong = ({ onSearch }) => {
     }
   };
 
-
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowUp') {
+    if (e.key === "ArrowUp") {
       e.preventDefault();
       if (selectedItem === null) {
         setSelectedItem(result[result.length - 1]);
@@ -61,7 +59,7 @@ const SearchSong = ({ onSearch }) => {
         const index = result.indexOf(selectedItem);
         setSelectedItem(result[(index - 1 + result.length) % result.length]);
       }
-    } else if (e.key === 'ArrowDown') {
+    } else if (e.key === "ArrowDown") {
       e.preventDefault();
       if (selectedItem === null) {
         setSelectedItem(result[0]);
@@ -69,9 +67,9 @@ const SearchSong = ({ onSearch }) => {
         const index = result.indexOf(selectedItem);
         setSelectedItem(result[(index + 1) % result.length]);
       }
-    } else if (e.key === 'Enter') {
+    } else if (e.key === "Enter") {
       e.preventDefault();
-      setSelectedItem(result.find(item => item === selectedItem));
+      setSelectedItem(result.find((item) => item === selectedItem));
     }
   };
 
@@ -96,14 +94,15 @@ const SearchSong = ({ onSearch }) => {
           {result.map((track, index) => (
             <li
               key={index}
-              className={selectedItem === track ? 'selected' : ''}
+              className={selectedItem === track ? "selected" : ""}
               onClick={() => {
                 setSelectedItem(track);
                 setSelectedTrackName(track.name);
                 setShowList(false); // Hide the list when an item is selected
               }}
             >
-              {track.name} - {track.artists.map(artist => artist.name).join(', ')}
+              {track.name} -{" "}
+              {track.artists.map((artist) => artist.name).join(", ")}
             </li>
           ))}
         </ul>

@@ -53,7 +53,7 @@ def hit_or_shit(track_id):
     print("Generate a prediction")
     prediction = model.predict(df)
     print("prediction:", df)
-    return np.array2string(prediction, formatter={'float_kind':lambda x: "%.2f" % x})
+    return str(prediction[0][0])
 
 
 # Load the already train model

@@ -1,18 +1,20 @@
 # Dockerfile pour le serveur ReactJS utilisant Node.js
 # Utilisez une image de base contenant Node.js
-FROM node:14-alpine
+FROM node:lts-bookworm-slim
 
 # Répertoire de travail dans le conteneur
 WORKDIR /code/spotify-app
 
-# Copiez les fichiers package.json et package-lock.json
-COPY package*.json ./
+# Copiez le reste des fichiers de l'application
+COPY ./spotify-app .
 
 # Installez les dépendances de l'application
 RUN npm install
 
 # Installez les dépendances de l'application
-RUN npm install next
+RUN npm install -g next
+
+RUN npm install performance-now
 
 # Copiez le reste des fichiers de l'application
 COPY . .
