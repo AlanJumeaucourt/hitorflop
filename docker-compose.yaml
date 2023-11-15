@@ -9,11 +9,25 @@ services:
     volumes:
       - ./backend/app:/code/app
     networks:
-      - backend
+      - backfront
     stdin_open: true
     tty: true
 
+  reactjs:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/spotify-app/:/code/spotify-app
+    networks:
+      - backfront
+    stdin_open: true
+    tty: true
+
+
 networks:
-  backend:
-    name: backend
+  backfront:
+    name: backfront
     driver: bridge
+ 
