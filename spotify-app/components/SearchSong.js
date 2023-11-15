@@ -1,69 +1,115 @@
-"use client"; // This is a client component 👈🏽
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const SearchSong = ({ onSearch }) => {
     const [query, setQuery] = useState('');
     const [result, setResult] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [showList, setShowList] = useState(false);
+    const [selectedTrackName, setSelectedTrackName] = useState('');
+    const inputRef = useRef(null);
+    
+    useEffect(() => {
+      if (selectedItem !== null) {
+        inputRef.current.blur();
+        onSearch(selectedItem.id); // Perform an action with the selected item (e.g., pass the ID)
+        setSelectedItem(null); // Reset the selected item
+        setShowList(false); // Hide the list
+        setSelectedItem(null); // Reset the selected item
+
+      }
+    }, [selectedItem, onSearch]);
   
-    const handleSearch = () => {
-      fetch(`https://api.spotify.com/v1/search?q=${query}&type=track`, {
-        headers: {
-          'Authorization': `Bearer `,
-        },
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.tracks && data.tracks.items) {
-          // Extraction des informations nécessaires pour chaque piste
-          const tracks = data.tracks.items.map(item => ({
-            name: item.name,
-            album: item.album.name,
-            artists: item.artists.map(artist => artist.name).join(', '), // Concaténation des noms des artistes
-          }));
-          setResult(tracks);
-        } else {
-          setResult([]); // Réinitialiser le résultat si aucune donnée n'a été trouvée
-        }
-      })
-      .catch(error => {
-        console.error('Erreur lors de la recherche :', error);
-      });
-    };
+  const handleSearch = (searchQuery) => {
+    fetch(`https://api.spotify.com/v1/search?q=${searchQuery}&type=track`, {
+      headers: {
+        'Authorization': `Bearer BQAjj9xsYg7Pk3KQMHNGGPdUxzA78sI8hTAIDgaUsfulU7C0YdzJPC0i8b2tqbIupK9_k7fVkdH0sEnqjPrnykNm-YJTGMIRnOLenSuv2Xs2oVcp11s`,
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.tracks && data.tracks.items) {
+        setResult(data.tracks.items);
+        setShowList(true); // Show the list when there are search results
+      } else {
+        setResult([]);
+        setShowList(false); // Hide the list when there are no search results
+      }
+    })
+    .catch(error => {
+      console.error('Error during search:', error);
+    });
+  };
+
+  const handleInputChange = (e) => {
+    const inputQuery = e.target.value;
+    setQuery(inputQuery);
+    if (inputQuery.length >= 3) {
+      handleSearch(inputQuery);
+    } else {
+      setResult([]);
+      setShowList(false); // Hide the list when the input length is less than 3 characters
+    }
+  };
+
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (selectedItem === null) {
+        setSelectedItem(result[result.length - 1]);
+      } else {
+        const index = result.indexOf(selectedItem);
+        setSelectedItem(result[(index - 1 + result.length) % result.length]);
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (selectedItem === null) {
+        setSelectedItem(result[0]);
+      } else {
+        const index = result.indexOf(selectedItem);
+        setSelectedItem(result[(index + 1) % result.length]);
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      setSelectedItem(result.find(item => item === selectedItem));
+    }
+  };
+
   return (
     <div>
       <input
         type="text"
-        placeholder="Rechercher une chanson..."
+        placeholder="Search for a song..."
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        ref={inputRef}
       />
-      <button onClick={handleSearch}>Rechercher</button>
-      <br></br>
-      {result.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th>Nom de la musique</th>
-              <th>Album</th>
-              <th>Artiste(s)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.map((track, index) => (
-              <tr key={index}>
-                <td>{track.name}</td>
-                <td>{track.album}</td>
-                <td>{track.artists}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>Aucun résultat trouvé</p>
+      {selectedItem && (
+        <div>
+          <p>Selected Track: {selectedTrackName}</p>
+          <p>Track ID: {selectedItem.id}</p>
+        </div>
+      )}
+      {showList && (
+        <ul>
+          {result.map((track, index) => (
+            <li
+              key={index}
+              className={selectedItem === track ? 'selected' : ''}
+              onClick={() => {
+                setSelectedItem(track);
+                setSelectedTrackName(track.name);
+                setShowList(false); // Hide the list when an item is selected
+              }}
+            >
+              {track.name} - {track.artists.map(artist => artist.name).join(', ')}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
 };
 
 export default SearchSong;
-

@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  python:
+    container_name: backend
+    build: ./backend
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./backend/app:/code/app
+    networks:
+      - backend
+    stdin_open: true
+    tty: true
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
