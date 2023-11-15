@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import Grid from "@mui/material/Grid";
 
 const SearchSong = ({ onSearch }) => {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedTrack, setSelectedTrack] = useState(null);
   const [showList, setShowList] = useState(false);
   const [selectedTrackName, setSelectedTrackName] = useState("");
   const inputRef = useRef(null);
@@ -19,11 +21,7 @@ const SearchSong = ({ onSearch }) => {
   }, [selectedItem, onSearch]);
 
   const handleSearch = (searchQuery) => {
-    fetch(`https://api.spotify.com/v1/search?q=${searchQuery}&type=track`, {
-      headers: {
-        Authorization: `Bearer BQCtIbu0sqaVklH1whsj44U9RNaUvgnGA5Sf7gFIfVW_vJh7bxW_KT2H_RMpL_PjrTuh9gwxlWrbXi0Cnyz2gk3AbLUeEQ_umy_rrd8eyW_k0rC7FGM`,
-      },
-    })
+    fetch(`http://localhost:3001/search/${searchQuery}`)
       .then((response) => response.json())
       .then((data) => {
         if (data && data.tracks && data.tracks.items) {
@@ -50,63 +48,80 @@ const SearchSong = ({ onSearch }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      if (selectedItem === null) {
-        setSelectedItem(result[result.length - 1]);
-      } else {
-        const index = result.indexOf(selectedItem);
-        setSelectedItem(result[(index - 1 + result.length) % result.length]);
-      }
-    } else if (e.key === "ArrowDown") {
-      e.preventDefault();
-      if (selectedItem === null) {
-        setSelectedItem(result[0]);
-      } else {
-        const index = result.indexOf(selectedItem);
-        setSelectedItem(result[(index + 1) % result.length]);
-      }
-    } else if (e.key === "Enter") {
-      e.preventDefault();
-      setSelectedItem(result.find((item) => item === selectedItem));
-    }
-  };
-
   return (
     <div>
-      <input
-        type="text"
-        placeholder="Search for a song..."
-        value={query}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        ref={inputRef}
-      />
-      {selectedItem && (
-        <div>
-          <p>Selected Track: {selectedTrackName}</p>
-          <p>Track ID: {selectedItem.id}</p>
-        </div>
-      )}
-      {showList && (
-        <ul>
-          {result.map((track, index) => (
-            <li
-              key={index}
-              className={selectedItem === track ? "selected" : ""}
-              onClick={() => {
-                setSelectedItem(track);
-                setSelectedTrackName(track.name);
-                setShowList(false); // Hide the list when an item is selected
-              }}
-            >
-              {track.name} -{" "}
-              {track.artists.map((artist) => artist.name).join(", ")}
-            </li>
-          ))}
-        </ul>
-      )}
+      <Grid container spacing={2}>
+        <Grid item l={6}>
+          <div style={{width: "100%"}}>
+          <input
+            type="text"
+            placeholder="Search for a song..."
+            value={query}
+            onChange={handleInputChange}
+            ref={inputRef}
+          />
+          {console.log(selectedItem)}
+          {showList && (
+            <ul>
+              {result.map((track, index) => (
+                <li
+                  key={index}
+                  className={selectedItem === track ? "selected" : ""}
+                  onClick={() => {
+                    setSelectedItem(track);
+                    setSelectedTrack(track);
+                    setShowList(false); // Hide the list when an item is selected
+                  }}
+                >
+                  {track.name} -{" "}
+                  {track.artists.map((artist) => artist.name).join(", ")}
+                </li>
+              ))}
+            </ul>
+          )}
+          </div>
+        </Grid>
+        <Grid item l={6}>
+          {selectedTrack && (
+            <div>
+              {/* <img
+            style={{
+              display: "block",
+              margin: "0 auto",
+              width: 100,
+              paddingTop: 20,
+              paddingBottom: 20,
+            }}
+            src={selectedTrack.album.images["0"].url}
+            alt="new"
+          />
+          {selectedTrack.preview_url && (
+            <audio controls="controls">
+              <source src={selectedTrack.preview_url} type="audio/mpeg" />
+            </audio>
+          )} */}
+              <div>
+                <iframe
+                  style={{
+                    borderRadius: 12,
+                    width: "auto",
+                    height: 352,
+                    loading: "lazy",
+                  }}
+                  src={`https://open.spotify.com/embed/track/${selectedTrack.id}?utm_source=generator`}
+                ></iframe>
+              </div>
+
+              <p>
+                Selected Track: <b>{selectedTrack.name}</b>
+              </p>
+              <p>
+                Principal Artist : <b>{selectedTrack.artists["0"].name}</b>
+              </p>
+            </div>
+          )}
+        </Grid>
+      </Grid>
     </div>
   );
 };

@@ -45,10 +45,12 @@ const SongSearchPage = () => {
 
   return (
     <div className="song-search-container"> {/* Ajout d'une classe pour le conteneur principal */}
-      <h1 className="page-title">Recherche de chansons</h1> {/* Classe pour le titre */}
+      <h1 className="page-title">Hit or flop ?</h1> {/* Classe pour le titre */}
+      <p>Le modèle d'IA qui prédit si un son à le potentiel d'un futur hit !</p>
+      <br></br>
       <div className="search-container"> {/* Classe pour le conteneur de recherche */}
         <SearchSong onSearch={handleSearch} />
-        {songID && <p>ID de la chanson : {songID}</p>}
+        {/* {songID && <p>ID de la chanson : {songID}</p>} */}
         {loading && <p>Chargement en cours...</p>}
         {prediction && !loading && (
           <div className="prediction-container"> {/* Classe pour le conteneur de prédiction */}
