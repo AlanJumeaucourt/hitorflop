@@ -3,32 +3,33 @@
 
 import React, { useState, useEffect } from 'react';
 import SearchSong from '../components/SearchSong';
-import './globals.css'
-
+import './globals.css';
 
 const SongSearchPage = () => {
   const [songID, setSongID] = useState(null);
   const [prediction, setPrediction] = useState(null);
-  const [loading, setLoading] = useState(false); // Nouvel état pour le chargement
+  const [loading, setLoading] = useState(false);
 
   const handleSearch = (id) => {
     setSongID(id);
   };
 
+  const API_URL = process.env.REACT_APP_API_FQDN
+  console.log('API_URL', API_URL);
   useEffect(() => {
     if (songID) {
-      setLoading(true); // Démarre l'indicateur de chargement
+      setLoading(true);
 
-      fetch(`http://localhost:3001/predict/${songID}`)
+      fetch(`http://${API_URL}/predict/${songID}`)
         .then((response) => response.json())
         .then((data) => {
           setPrediction(data);
-          setLoading(false); // Arrête l'indicateur de chargement
+          setLoading(false);
           console.log(data);
         })
         .catch((error) => {
           console.error('Error fetching prediction:', error);
-          setLoading(false); // Arrête l'indicateur de chargement en cas d'erreur
+          setLoading(false);
         });
     }
   }, [songID]);
@@ -39,29 +40,32 @@ const SongSearchPage = () => {
     } else if (prediction <= 0.5) {
       return <p>C'est un FLOP</p>;
     } else {
-      return null; // Handle other cases as needed
+      return null;
     }
   };
 
   return (
-    <div className="song-search-container"> {/* Ajout d'une classe pour le conteneur principal */}
-      <h1 className="page-title">Hit or flop ?</h1> {/* Classe pour le titre */}
-      <p>Le modèle d'IA qui prédit si un son à le potentiel d'un futur hit !</p>
+    <>
+    <div className="song-search-container">
+      <h1 className="page-title">Hit or flop ?</h1>
+      <p>Le modèle d'IA qui prédit si un son a le potentiel d'un futur hit !</p>
       <br></br>
-      <div className="search-container"> {/* Classe pour le conteneur de recherche */}
+
+      <div>
         <SearchSong onSearch={handleSearch} />
-        {/* {songID && <p>ID de la chanson : {songID}</p>} */}
+      </div>
+      <div>
         {loading && <p>Chargement en cours...</p>}
         {prediction && !loading && (
-          <div className="prediction-container"> {/* Classe pour le conteneur de prédiction */}
+          <div className="prediction-container">
             <h2>Réponse de l'IA de prédiction :</h2>
             {renderPredictionResult()}
           </div>
         )}
       </div>
     </div>
+    </>
   );
 };
-
 
 export default SongSearchPage;

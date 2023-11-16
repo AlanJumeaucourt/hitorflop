@@ -22,6 +22,8 @@ services:
       - ./frontend/spotify-app/:/code/spotify-app
     networks:
       - backfront
+    environment:
+      - REACT_APP_API_FQDN=${REACT_APP_API_FQDN}
     stdin_open: true
     tty: true
 
