@@ -24,4 +24,4 @@ COPY . .
 # RUN npm run build
 
 # Commande pour démarrer l'application
-CMD [ "npm", "run", "dev"]
+CMD [ "npm", "start"]
