@@ -19,11 +19,23 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
+    """
+    This function returns a dictionary with a greeting message.
+    """
     return {"Hello": "World"}
 
 
 @app.get("/predict/{track_id}")
-async def read_item(track_id):
+async def read_item(track_id: str):
+    """
+    Read an item with the given track_id.
+
+    Parameters:
+    - track_id (str): The ID of the track to read.
+
+    Returns:
+    - str: The result of the hit_or_shit function.
+    """
     print(track_id)
     return hit_or_shit(track_id)
 
@@ -36,6 +48,15 @@ sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 @app.get("/search/{query}")
 async def search_tracks(query: str):
+    """
+    Search for tracks using the Spotify API.
+
+    Args:
+        query (str): The search query.
+
+    Returns:
+        dict: The search results.
+    """
     results = sp.search(q=query, type='track')
     print(results)
     return results

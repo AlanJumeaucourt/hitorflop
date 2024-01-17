@@ -5,6 +5,7 @@ import tensorflow as tf
 import keras
 import pandas as pd
 import numpy as np
+from typing import Dict, Any
 
 # Remplacez ces valeurs par vos propres identifiants Spotify
 client_id = 'ee81f20dfd134f47a82e6be46c36e27b'
@@ -14,11 +15,29 @@ client_secret = 'd1fa2ca29e4a4f3e947147f8bb1bc096'
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-def get_track_audio_features(track_id):
+def fetch_audio_features(track_id: str):
+    """
+    Fetches the audio features for a given track ID.
+
+    Parameters:
+    track_id (str): The ID of the track.
+
+    Returns:
+    dict or None: A dictionary containing the audio features of the track, or None if no audio features are available.
+    """
     audio_features = sp.audio_features(track_id)
     return audio_features[0] if audio_features else None
 
-def format_data_for_model(track_audio_features):
+def preprocess_data_for_model(track_audio_features: Dict[str, Any]):
+    """
+    Preprocesses track audio features for the model.
+
+    Args:
+        track_audio_features (dict): A dictionary containing track audio features.
+
+    Returns:
+        dict: A dictionary containing preprocessed track audio features.
+    """
     data = {}
     data["danceability"] = track_audio_features['danceability']
     data["energy"] = track_audio_features['energy']
@@ -39,12 +58,22 @@ def format_data_for_model(track_audio_features):
     return data
 
     
-def hit_or_shit(track_id):
+def hit_or_shit(track_id: str):
+    """
+    Determines whether a given track is a hit or a flop based on its audio features.
+
+    Parameters:
+    track_id (str): The ID of the track to be evaluated.
+
+    Returns:
+    str: The prediction indicating whether the track is a hit or a flop.
+    """
+    
     # Get info from spotify API
-    track_audio_features = get_track_audio_features(track_id)
+    track_audio_features = fetch_audio_features(track_id)
 
     # Format the data for the model
-    data = format_data_for_model(track_audio_features)
+    data = preprocess_data_for_model(track_audio_features)
 
     # Affichage des caractéristiques audio de la musique
     df = pd.DataFrame(data, index=[0])
