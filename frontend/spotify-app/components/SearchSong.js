@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import Grid from '@mui/material/Grid'; // Grid version 2
 
 
 const SearchSong = ({ onSearch }) => {
