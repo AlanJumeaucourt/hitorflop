@@ -1,27 +1,20 @@
-# Dockerfile pour le serveur ReactJS utilisant Node.js
-# Utilisez une image de base contenant Node.js
-FROM node:lts-bookworm-slim
+# Build stage
+FROM node:21-slim as build
 
-# Répertoire de travail dans le conteneur
-WORKDIR /code/spotify-app
+WORKDIR /app
+COPY ./spotify-app /app
 
-# Copiez le reste des fichiers de l'application
-COPY ./spotify-app .
-
-# Installez les dépendances de l'application
 RUN npm install
+RUN npm run build
 
-# Installez les dépendances de l'application
-RUN npm install -g next
+# Production stage
+FROM nginx:alpine
 
-RUN npm install performance-now
-RUN npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+# Copy the built assets from build stage to nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copiez le reste des fichiers de l'application
-COPY . .
+# Expose port 80
+EXPOSE 80
 
-# Construisez l'application ReactJS (uniquement lorceque l'appli sera terminée)
-# RUN npm run build
-
-# Commande pour démarrer l'application
-CMD [ "npm", "start"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

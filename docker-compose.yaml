@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  python:
+  backend:
     container_name: backend
     build: ./backend
     ports:
@@ -13,17 +13,15 @@ services:
     stdin_open: true
     tty: true
 
-  reactjs:
+  frontend:
     container_name: frontend
     build: ./frontend
     ports:
-      - '3000:3000'
-    volumes:
-      - ./frontend/spotify-app/:/code/spotify-app
+      - '3000:80'
     networks:
       - backfront
     environment:
-      - REACT_APP_API_FQDN=${REACT_APP_API_FQDN}
+      - VITE_API_FQDN=${VITE_API_FQDN}
     stdin_open: true
     tty: true
 

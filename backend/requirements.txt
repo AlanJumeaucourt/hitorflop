@@ -1,6 +1,9 @@
-numpy
-tensorflow
-pandas
-spotipy
-fastapi
-uvicorn
+numpy==1.24.3
+tensorflow==2.13.0
+keras==2.13.1
+pandas==2.0.3
+spotipy==2.23.0
+fastapi==0.95.2
+uvicorn==0.24.0
+typing-extensions==4.5.0
+h5py==3.8.0

@@ -41,7 +41,7 @@ async def read_item(track_id: str):
 
 # Remplacez ces valeurs par vos propres identifiants Spotify
 client_id = 'ee81f20dfd134f47a82e6be46c36e27b'
-client_secret = 'd1fa2ca29e4a4f3e947147f8bb1bc096'
+client_secret = '8b7c3ec55aed4ee58a225303ad151f14'
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)

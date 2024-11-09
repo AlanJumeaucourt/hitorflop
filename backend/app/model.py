@@ -1,43 +1,26 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-
+import os
 import tensorflow as tf
-import keras
+from tensorflow import keras
 import pandas as pd
 import numpy as np
-from typing import Dict, Any
+import h5py
+import keras
 
 # Remplacez ces valeurs par vos propres identifiants Spotify
 client_id = 'ee81f20dfd134f47a82e6be46c36e27b'
-client_secret = 'd1fa2ca29e4a4f3e947147f8bb1bc096'
+client_secret = '8b7c3ec55aed4ee58a225303ad151f14'
 
 # Initialisez l'authentification client pour l'API Spotify
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
-def fetch_audio_features(track_id: str):
-    """
-    Fetches the audio features for a given track ID.
-
-    Parameters:
-    track_id (str): The ID of the track.
-
-    Returns:
-    dict or None: A dictionary containing the audio features of the track, or None if no audio features are available.
-    """
+def get_track_audio_features(track_id):
     audio_features = sp.audio_features(track_id)
     return audio_features[0] if audio_features else None
 
-def preprocess_data_for_model(track_audio_features: Dict[str, Any]):
-    """
-    Preprocesses track audio features for the model.
-
-    Args:
-        track_audio_features (dict): A dictionary containing track audio features.
-
-    Returns:
-        dict: A dictionary containing preprocessed track audio features.
-    """
+def format_data_for_model(track_audio_features):
     data = {}
     data["danceability"] = track_audio_features['danceability']
     data["energy"] = track_audio_features['energy']
@@ -58,22 +41,12 @@ def preprocess_data_for_model(track_audio_features: Dict[str, Any]):
     return data
 
     
-def hit_or_shit(track_id: str):
-    """
-    Determines whether a given track is a hit or a flop based on its audio features.
-
-    Parameters:
-    track_id (str): The ID of the track to be evaluated.
-
-    Returns:
-    str: The prediction indicating whether the track is a hit or a flop.
-    """
-    
+def hit_or_shit(track_id):
     # Get info from spotify API
-    track_audio_features = fetch_audio_features(track_id)
+    track_audio_features = get_track_audio_features(track_id)
 
     # Format the data for the model
-    data = preprocess_data_for_model(track_audio_features)
+    data = format_data_for_model(track_audio_features)
 
     # Affichage des caractéristiques audio de la musique
     df = pd.DataFrame(data, index=[0])
@@ -85,5 +58,36 @@ def hit_or_shit(track_id: str):
     return str(prediction[0][0])
 
 
-# Load the already train model
-model = keras.models.load_model("/code/app/model.keras")
+import os
+os.system('ls /code/app')
+
+
+# Add debugging information before loading the model
+model_path = "/code/app/model.keras"
+print(f"Current working directory: {os.getcwd()}")
+print(f"Model path exists: {os.path.exists(model_path)}")
+print(f"Model path is file: {os.path.isfile(model_path)}")
+print(f"Model path permissions: {oct(os.stat(model_path).st_mode)[-3:]}")
+print(f"Directory contents: {os.listdir('/code/app')}")
+print(f"TensorFlow version: {tf.__version__}")
+print(f"Keras version: {keras.__version__}")
+
+try:
+    print(f"Attempting to load model from absolute path: {model_path}")
+    # Try to open the file first to verify it's readable
+    with h5py.File(model_path, 'r') as f:
+        print("File opened successfully")
+        print(f"Keys in file: {list(f.keys())}")
+    
+    # Now try to load the model
+    model = tf.keras.models.load_model(
+        model_path,
+        custom_objects=None,
+        compile=False  # Changed to False to avoid compilation issues
+    )
+    print("Model loaded successfully")
+except Exception as e:
+    print(f"Error loading model: {str(e)}")
+    print("File contents:")
+    os.system(f"hexdump -C {model_path} | head -n 5")
+    raise
